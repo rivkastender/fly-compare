@@ -1,1 +1,5 @@
-
+.grid-container::after {
+  content: "";
+  grid-column: 2;
+  background-color: black;
+}
