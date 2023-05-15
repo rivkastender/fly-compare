@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/fly-compare/static/css/main.a132e368.css",
-    "main.js": "/fly-compare/static/js/main.0eed99b0.js",
+    "main.css": "/fly-compare/static/css/main.4ae6aabb.css",
+    "main.js": "/fly-compare/static/js/main.63d5d0b8.js",
     "static/js/787.6c9a26af.chunk.js": "/fly-compare/static/js/787.6c9a26af.chunk.js",
     "static/media/Background.svg": "/fly-compare/static/media/Background.7472124d7117dfadbe0f6653bcf9d08c.svg",
     "static/media/FlyCompare.svg": "/fly-compare/static/media/FlyCompare.ec3a6d6820316bd9e329c9b660c37270.svg",
     "index.html": "/fly-compare/index.html",
-    "main.a132e368.css.map": "/fly-compare/static/css/main.a132e368.css.map",
-    "main.0eed99b0.js.map": "/fly-compare/static/js/main.0eed99b0.js.map",
+    "main.4ae6aabb.css.map": "/fly-compare/static/css/main.4ae6aabb.css.map",
+    "main.63d5d0b8.js.map": "/fly-compare/static/js/main.63d5d0b8.js.map",
     "787.6c9a26af.chunk.js.map": "/fly-compare/static/js/787.6c9a26af.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.a132e368.css",
-    "static/js/main.0eed99b0.js"
+    "static/css/main.4ae6aabb.css",
+    "static/js/main.63d5d0b8.js"
   ]
 }
