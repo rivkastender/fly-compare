@@ -6,13 +6,13 @@ import {
   Button,
   Grid,
   Divider,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Container,
 } from "@mui/material";
 import CircleIcon from "@mui/icons-material/Circle";
 import FlightIcon from "@mui/icons-material/Flight";
-import Accordion from "@mui/material/Accordion";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import AccordionSummary from "@mui/material/AccordionSummary";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   LocalizationProvider,
@@ -26,9 +26,9 @@ import "./status.css";
 export const Status = () => {
   const [flightData, setFlightData] = useState([]);
   const [flightNum, setFlightNum] = useState("");
-  const [flightStatus, setFlightStatus] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
   const [expanded, setExpanded] = useState(0);
+  const [numNoZero, setNumNoZero] = useState("");
 
   const accessKey = "2d3cdd9ea8bf4d3c5752501ae9253b9f";
 
@@ -38,8 +38,13 @@ export const Status = () => {
   console.log("flightNum");
   console.log(flightNum);
 
+  console.log("No zero's");
+  console.log(numNoZero);
+
   const onInput = (event) => {
-    setFlightNum(event.target.value);
+    const capitalizedValue = event.target.value.toUpperCase();
+    setNumNoZero(capitalizedValue.replace(/[a-zA-Z]0+/g, (match) => match[0]));
+    setFlightNum(capitalizedValue);
   };
 
   const handleDateChange = (date) => {
@@ -49,7 +54,7 @@ export const Status = () => {
   function CallAPI() {
     if (flightNum !== "" && selectedDate !== null) {
       fetch(
-        `https://flightera-flight-data.p.rapidapi.com/flight/info?flnr=AA2007&date=2023-05-13`,
+        `https://flightera-flight-data.p.rapidapi.com/flight/info?flnr=${numNoZero}&date=${selectedDate}`,
         {
           method: "GET",
           headers: {
@@ -90,7 +95,20 @@ export const Status = () => {
 
   function formatTime(timeString) {
     const date = new Date(timeString);
-    return date.toLocaleTimeString([], { timeStyle: "short" });
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+
+    // Determine if it's AM or PM
+    const amOrPm = hours >= 12 ? "PM" : "AM";
+
+    // Convert to 12-hour format
+    hours = hours % 12 || 12;
+
+    // Format hours and minutes to have leading zeros if needed
+    const formattedHours = hours.toString().padStart(2, "0");
+    const formattedMinutes = minutes.toString().padStart(2, "0");
+
+    return `${formattedHours}:${formattedMinutes} ${amOrPm}`;
   }
 
   function timeOfFlight(depart, arrive) {
@@ -106,6 +124,9 @@ export const Status = () => {
   }
 
   function findStatusColor(data) {
+    if (data.status == "canc") {
+      return "black";
+    }
     const schedArrive = new Date(data.scheduled_arrival_local);
     const actualArrive = new Date(data.actual_arrival_local);
 
@@ -114,53 +135,76 @@ export const Status = () => {
     return timeDifference < 0 ? "red" : "green";
   }
 
+  function statusText(flight) {
+    let statusText;
+
+    switch (flight.status) {
+      case "landed":
+        statusText =
+          findStatusColor(flight) === "red" ? "Arrived Late" : "Arrived";
+        break;
+      case "canc":
+        statusText = "Cancelled";
+        break;
+      case "sched":
+      case "live":
+        statusText = findStatusColor(flight) === "red" ? "Delayed" : "On time";
+        break;
+
+      default:
+        statusText = "";
+        break;
+    }
+    return statusText;
+  }
+
   const handleChange = (panel) => (event, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
 
   return (
     <>
+      <Typography
+        sx={{
+          fontSize: 48,
+          marginTop: "5%",
+          textAlign: "center",
+          marginRight: "55%",
+        }}
+      >
+        Flight status:
+      </Typography>
       <Box
         sx={{
-          width: "55%",
-          height: 200,
+          width: "50%",
+          height: "45%",
           borderRadius: 4,
           margin: "auto",
-          marginBottom: 15,
+          marginBottom: "5%",
           border: 3,
           padding: 5,
-          marginTop: 15,
+          marginTop: "2%",
 
           overflow: "hidden",
           position: "center",
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            width: "75%",
-          }}
-        >
-          <Typography
-            sx={{
-              marginRight: 2,
-              fontSize: 25,
-            }}
+        <Box sx={{ marginTop: "1%" }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", marginLeft: "1.5%" }}
           >
-            Flight status:
-          </Typography>
-        </Box>
-        <Box sx={{ marginTop: 5 }}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Typography sx={{ marginRight: 2 }}>Flight Number:</Typography>
+            <Typography sx={{ marginRight: 2, fontSize: 20 }}>
+              Flight Number:
+            </Typography>
             <TextField
               id="flightNum"
               label=""
               onInput={onInput}
               value={flightNum}
             />
-            <Typography sx={{ marginRight: 2, marginLeft: 2 }}>
+            <Typography
+              sx={{ marginRight: "2%", marginLeft: "3%", fontSize: 20 }}
+            >
               Date:
             </Typography>
             <PickDate />
@@ -168,7 +212,7 @@ export const Status = () => {
               variant="contained"
               size="large"
               onClick={CallAPI}
-              sx={{ marginRight: 2, marginLeft: 2 }}
+              sx={{ marginLeft: "8%" }}
             >
               Search
             </Button>
@@ -178,320 +222,7 @@ export const Status = () => {
       {Array.isArray(flightData) &&
       flightData.length === 2 &&
       flightData[0].departure_city === flightData[1].departure_city ? (
-        <div>
-          <Accordion
-            key={0}
-            expanded={expanded === 0}
-            onChange={handleChange(0)}
-            sx={{
-              width: "65%",
-              border: 0.25,
-              borderColor: "lightgray",
-            }}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls={`panel${0}bh-content`}
-              id={`panel${0}bh-header`}
-              sx={{ height: 75 }}
-            >
-              <Typography sx={{ width: "33%", flexShrink: 0 }}>
-                {formatTime(flightData[1].scheduled_departure_local)}
-              </Typography>
-              <Typography sx={{ color: "text.secondary" }}>
-                {flightData[1].flnr}
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ height: 375 }}>
-              <Box
-                boxShadow={15}
-                sx={{
-                  width: "80%",
-                  height: 250,
-                  borderRadius: 4,
-                  margin: "auto",
-                  border: 3,
-                  padding: 5,
-                  overflow: "hidden",
-                  position: "center",
-                }}
-              >
-                <Typography sx={{ textAlign: "center", marginBottom: "-5%" }}>
-                  {timeOfFlight(
-                    flightData[1].scheduled_departure_local,
-                    flightData[1].scheduled_arrival_local
-                  )}
-                </Typography>
-                <div
-                  style={{
-                    marginTop: "-4%",
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      display: "inline",
-                      margin: "10px",
-                      fontSize: 45,
-                    }}
-                  >
-                    {flightData[1].departure_iata}
-                  </Typography>
-
-                  <FlightIcon
-                    sx={{ transform: "rotate(90deg)", color: "green" }}
-                  />
-                  <Divider
-                    style={{
-                      width: "72%",
-                      borderWidth: 1,
-                      backgroundColor: findStatusColor(flightData[1]),
-                    }}
-                    orientation="horizontal"
-                  />
-                  <FlightIcon
-                    sx={{ transform: "rotate(90deg)", color: "green" }}
-                  />
-
-                  <Typography
-                    sx={{ display: "inline", margin: "10px", fontSize: 45 }}
-                  >
-                    {flightData[1].arrival_iata}
-                  </Typography>
-                </div>
-
-                <Grid container spacing={2}>
-                  <Grid
-                    item
-                    xs={6}
-                    minHeight={250}
-                    sx={{ borderRight: "1px solid lightgray" }}
-                  >
-                    <Typography
-                      color="text.primary"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        paddingTop: "5%",
-                        fontSize: 20,
-                        marginLeft: "2%",
-                      }}
-                    >
-                      {flightData[1].departure_city}
-                      <CircleIcon
-                        sx={{ fontSize: 5, marginLeft: 1, marginRight: 1 }}
-                      />
-                      {formatDate(flightData[1].scheduled_departure_local)}
-                    </Typography>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginTop: "1%",
-                        marginLeft: "2%",
-                      }}
-                    >
-                      <Typography
-                        color="gray"
-                        style={{
-                          marginRight: "5%",
-                          fontSize: 15,
-                          marginTop: "1%",
-                        }}
-                      >
-                        {flightData[1] ? "Departed" : "Scheduled departure"}
-                      </Typography>
-                      <Typography
-                        color="gray"
-                        sx={{ marginLeft: "27%", marginTop: "1%" }}
-                      >
-                        Terminal
-                      </Typography>
-                      <Typography
-                        color="gray"
-                        sx={{ marginLeft: "10%", marginTop: "1%" }}
-                      >
-                        Gate
-                      </Typography>
-                    </div>
-                    <div
-                      style={{
-                        marginLeft: "1%",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          display: "inline",
-                          fontSize: 30,
-                          color: findStatusColor(flightData[1]),
-                        }}
-                      >
-                        {flightData[1].actual_departure_is_estimated
-                          ? formatTime(flightData[1].scheduled_departure_local)
-                          : formatTime(flightData[1].actual_departure_local)}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          marginLeft: "20%",
-                          display: "inline",
-                          fontSize: 30,
-                        }}
-                      >
-                        {flightData[1].departure_terminal
-                          ? flightData[1].departure_terminal
-                          : "-"}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          marginLeft: "15%",
-                          display: "inline",
-                          fontSize: 30,
-                        }}
-                      >
-                        {flightData[1].departure_gate
-                          ? flightData[1].departure_gate
-                          : "-"}
-                      </Typography>
-                      <div>
-                        <Typography
-                          color="gray"
-                          sx={{
-                            display: "inline",
-                            fontSize: 20,
-                            textDecoration: flightData[1]
-                              .actual_departure_is_estimated
-                              ? "none"
-                              : "line-through",
-                          }}
-                        >
-                          {flightData[1].actual_departure_is_estimated
-                            ? null
-                            : formatTime(
-                                flightData[1].scheduled_departure_local
-                              )}
-                        </Typography>
-                      </div>
-                    </div>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={6}
-                    minHeight={250}
-                    sx={{ borderLeft: "1px solid lightgray" }}
-                  >
-                    <Typography
-                      color="text.primary"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        paddingTop: "5%",
-                        marginLeft: "4%",
-                        fontSize: 20,
-                      }}
-                    >
-                      {flightData[1].arrival_city}
-                      <CircleIcon
-                        sx={{ fontSize: 5, marginLeft: 1, marginRight: 1 }}
-                      />
-                      {formatDate(flightData[1].scheduled_arrival_local)}
-                    </Typography>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginTop: "1%",
-                        marginLeft: "4%",
-                      }}
-                    >
-                      <Typography
-                        color="gray"
-                        style={{
-                          marginRight: "5%",
-                          fontSize: 15,
-                          marginTop: "1%",
-                        }}
-                      >
-                        {flightData[1] ? "Departed" : "Scheduled departure"}
-                      </Typography>
-                      <Typography
-                        color="gray"
-                        sx={{ marginLeft: "27%", marginTop: "1%" }}
-                      >
-                        Terminal
-                      </Typography>
-                      <Typography
-                        color="gray"
-                        sx={{ marginLeft: "10%", marginTop: "1%" }}
-                      >
-                        Gate
-                      </Typography>
-                    </div>
-
-                    <div
-                      style={{
-                        marginLeft: "4%",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          display: "inline",
-                          fontSize: 30,
-                          color: findStatusColor(flightData[1]),
-                        }}
-                      >
-                        {flightData[1].actual_departure_is_estimated
-                          ? formatTime(flightData[1].scheduled_arrival_local)
-                          : formatTime(flightData[1].actual_arrival_local)}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          marginLeft: "26%",
-                          display: "inline",
-                          fontSize: 30,
-                        }}
-                      >
-                        {flightData[1].arrival_terminal
-                          ? flightData[1].arrival_terminal
-                          : "-"}
-                      </Typography>
-                      <Typography
-                        sx={{
-                          marginLeft: "15%",
-                          display: "inline",
-                          fontSize: 30,
-                        }}
-                      >
-                        {flightData[1].arrival_gate
-                          ? flightData[1].arrival_gate
-                          : "-"}
-                      </Typography>
-                      <div>
-                        <Typography
-                          color="gray"
-                          sx={{
-                            display: "inline",
-                            fontSize: 20,
-                            textDecoration: flightData[1]
-                              .actual_departure_is_estimated
-                              ? "none"
-                              : "line-through",
-                          }}
-                        >
-                          {flightData[1].actual_departure_is_estimated
-                            ? null
-                            : formatTime(flightData[1].scheduled_arrival_local)}
-                        </Typography>
-                      </div>
-                    </div>
-                  </Grid>
-                </Grid>
-              </Box>
-            </AccordionDetails>
-          </Accordion>
-        </div>
+        <div></div>
       ) : flightData && Array.isArray(flightData) && flightData.length > 0 ? (
         flightData.map((flight, index) => (
           <div>
@@ -500,7 +231,7 @@ export const Status = () => {
               expanded={expanded === index}
               onChange={handleChange(index)}
               sx={{
-                width: "65%",
+                width: "60%",
                 border: 0.25,
                 borderColor: "lightgray",
               }}
@@ -512,12 +243,53 @@ export const Status = () => {
                 id={`panel${index}bh-header`}
                 sx={{ height: 75 }}
               >
-                <Typography sx={{ width: "33%", flexShrink: 0 }}>
-                  {formatTime(flight.scheduled_departure_local)}
-                </Typography>
-                <Typography sx={{ color: "text.secondary" }}>
-                  {flight.flnr}
-                </Typography>
+                <Box>
+                  <Typography sx={{ fontSize: 20 }}>
+                    {formatTime(flight.scheduled_departure_local)}
+                  </Typography>
+                  <Box
+                    sx={{
+                      border: 2,
+                      color: findStatusColor(flight),
+                      textAlign: "center",
+                      marginRight: 18,
+                      borderRadius: 2,
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        paddingRight: 1,
+                        paddingLeft: 1,
+                        fontSize: 19,
+                        color: findStatusColor(flight),
+                      }}
+                    >
+                      {statusText(flight)}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ width: "33%" }}>
+                  <Typography sx={{ fontSize: 20 }}>{flight.flnr}</Typography>
+                  <Box sx={{ display: "flex", flexDirection: "row" }}>
+                    <Typography
+                      sx={{
+                        fontSize: 19,
+                        marginRight: "2%",
+                      }}
+                    >
+                      {flight.arrival_city}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        marginTop: "1.5%",
+                        fontSize: 15,
+                        color: "text.secondary",
+                      }}
+                    >
+                      {flight.arrival_iata}
+                    </Typography>
+                  </Box>
+                </Box>
               </AccordionSummary>
               <AccordionDetails sx={{ height: 375 }}>
                 <Box
@@ -630,7 +402,9 @@ export const Status = () => {
                             marginTop: "1%",
                           }}
                         >
-                          {flight ? "Departed" : "Scheduled departure"}
+                          {flight.actual_departure_is_estimated
+                            ? "Scheduled departure"
+                            : "Departed"}
                         </Typography>
                         <Typography
                           color="gray"
@@ -720,7 +494,20 @@ export const Status = () => {
                         <CircleIcon
                           sx={{ fontSize: 5, marginLeft: 1, marginRight: 1 }}
                         />
-                        {formatDate(flight.scheduled_arrival_local)}
+                        {formatDate("2023-05-15T23:50:00-04:00")}
+
+                        <Typography
+                          color={"gray"}
+                          style={{
+                            fontSize: 12,
+                            textDecoration: "line-through",
+                          }}
+                        >
+                          {formatDate(flight.scheduled_arrival_local) !==
+                          formatDate("2023-05-15T23:50:00-04:00")
+                            ? formatDate(flight.scheduled_arrival_local)
+                            : null}
+                        </Typography>
                       </Typography>
                       <div
                         style={{
@@ -738,7 +525,9 @@ export const Status = () => {
                             marginTop: "1%",
                           }}
                         >
-                          {flight ? "Departed" : "Scheduled departure"}
+                          {flight.status === "landed"
+                            ? "Arrived"
+                            : "Scheduled arrival"}
                         </Typography>
                         <Typography
                           color="gray"
@@ -804,7 +593,7 @@ export const Status = () => {
                           >
                             {flight.actual_departure_is_estimated
                               ? null
-                              : formatTime(flight.scheduled_arrival_local)}
+                              : formatTime(flight.scheduled_arrival_local)}{" "}
                           </Typography>
                         </div>
                       </div>
