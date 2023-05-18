@@ -176,7 +176,7 @@ export const Status = () => {
       </Typography>
       <Box
         sx={{
-          width: "50%",
+          width: "58%",
           height: "45%",
           borderRadius: 4,
           margin: "auto",
@@ -190,9 +190,7 @@ export const Status = () => {
         }}
       >
         <Box sx={{ marginTop: "1%" }}>
-          <Box
-            sx={{ display: "flex", alignItems: "center", marginLeft: "1.5%" }}
-          >
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <Typography sx={{ marginRight: 2, fontSize: 20 }}>
               Flight Number:
             </Typography>
@@ -212,7 +210,7 @@ export const Status = () => {
               variant="contained"
               size="large"
               onClick={CallAPI}
-              sx={{ marginLeft: "8%" }}
+              sx={{ marginLeft: "5%" }}
             >
               Search
             </Button>

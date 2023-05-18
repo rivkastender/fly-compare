@@ -16,15 +16,34 @@ import { Button } from "@mui/material";
 import LaunchIcon from "@mui/icons-material/Launch";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
+import Popover from "@mui/material/Popover";
 
 export const Compare = () => {
   const [checked, setChecked] = useState(false);
   const [flightData, setFlightData] = useState([]);
   const [expanded, setExpanded] = useState(false);
+  const [expandSecond, setExpandSecond] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "popover" : undefined;
 
   const handleExpand = (event, isExpanded) => {
     setExpanded(isExpanded);
   };
+
+  const handleExpandSecond = (event, isExpanded) => {
+    setExpandSecond(isExpanded);
+  };
+
   console.log("flightData");
   console.log(flightData);
 
@@ -271,6 +290,7 @@ export const Compare = () => {
                 marginTop: "-4%",
               }}
               sx={{ minWidth: "180px" }}
+              onClick={handleClick}
             >
               <Typography
                 style={{
@@ -286,172 +306,547 @@ export const Compare = () => {
           </div>
         </div>
       </Box>
-
-      <Box
-        sx={{
-          border: 3,
-          borderRadius: 0,
-          marginTop: "50px",
-          marginBottom: "50px",
-          marginLeft: "375px",
-          marginRight: "375px",
-          height: "auto",
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
         }}
       >
-        <div>
-          <Typography>Outbound</Typography>
-          <Accordion expanded={expanded} onChange={handleExpand}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
+        <Box
+          sx={{
+            border: 3,
+            borderRadius: 0,
+            width: "75%",
+            height: "auto",
+          }}
+        >
+          <div>
+            <Box
               sx={{
-                border: 3,
-                margin: 3,
-                borderBottomLeftRadius: expanded ? 0 : 30,
-                borderBottomRightRadius: expanded ? 0 : 30,
-                borderTopLeftRadius: 30,
-                borderTopRightRadius: 30,
+                display: "flex",
+                flexDirection: "row",
+                marginTop: "2%",
+                marginBottom: "-2%",
               }}
             >
-              <div style={{ marginLeft: "5%" }}>
-                <img
-                  src={logo}
-                  alt="airline"
-                  style={{
-                    width: "10%",
-                    marginTop: "2.5%",
-                    marginBottom: "-2.5%",
-                    marginLeft: "-3%",
-                    border: "1px solid",
-                    borderColor: "black",
-                    borderRadius: "10%",
-                  }}
-                />
-                <Box>
-                  <Typography
-                    sx={{
-                      marginLeft: "12%",
-                      marginTop: "-8%",
-                      marginBottom: "-5%",
-                      fontSize: 25,
+              <Typography
+                sx={{
+                  fontSize: 25,
+                  marginLeft: "5%",
+                }}
+              >
+                Outbound
+              </Typography>
+
+              <Typography sx={{ fontSize: 25, marginLeft: "5%" }}>
+                Date of Departure
+              </Typography>
+            </Box>
+            <Box
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                marginLeft: "80%",
+                fontSize: 25,
+                marginTop: "-5%",
+              }}
+            >
+              <Checkbox checked={checked} onChange={handleChange} />
+              <Typography
+                style={{ fontSize: 20, marginTop: "4.5%", marginLeft: "-5%" }}
+              >
+                Compare
+              </Typography>
+            </Box>
+            <Accordion expanded={expanded} onChange={handleExpand}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+                sx={{
+                  border: 3,
+                  margin: 3,
+                  borderBottomLeftRadius: expanded ? 0 : 30,
+                  borderBottomRightRadius: expanded ? 0 : 30,
+                  borderTopLeftRadius: 30,
+                  borderTopRightRadius: 30,
+                }}
+              >
+                <div style={{ marginLeft: "5%" }}>
+                  <img
+                    src={logo}
+                    alt="airline"
+                    style={{
+                      width: "10%",
+                      marginTop: "2%",
+                      marginBottom: "1%",
+                      marginLeft: "-3%",
+                      border: "1px solid",
+                      borderColor: "black",
+                      borderRadius: "10%",
                     }}
-                  >
-                    Time Depart
-                  </Typography>
+                  />
+                  <Box sx={{ marginTop: "-12%" }}>
+                    <Typography
+                      sx={{
+                        marginLeft: "12%",
+                        marginTop: "-8%",
+                        marginBottom: "-5%",
+                        fontSize: 25,
+                      }}
+                    >
+                      Time Depart
+                    </Typography>
+                    <Typography
+                      sx={{
+                        marginLeft: "43%",
+                        marginTop: "-3%",
+                        marginBottom: "-5.5%",
+                        fontSize: 18,
+                      }}
+                    >
+                      Total Time
+                    </Typography>
+                    <Typography
+                      sx={{ marginLeft: "66%", marginTop: "-4%", fontSize: 25 }}
+                    >
+                      Time Depart
+                    </Typography>
+                    <Divider
+                      style={{
+                        width: "60%",
+                        borderWidth: 1,
+                        background: "black",
+                        marginLeft: "20%",
+                        marginTop: ".25%",
+                      }}
+                    />
+                    <span
+                      style={{
+                        position: "absolute",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: 12,
+                        height: 12,
+                        borderRadius: "50%",
+                        background: "black",
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        marginLeft: "16%",
+                        fontSize: 25,
+                        marginTop: ".15%",
+                      }}
+                    >
+                      Airport
+                    </Typography>
+                    <Typography
+                      sx={{
+                        marginLeft: "43%",
+                        marginTop: "-4.75%",
+                        marginBottom: "-5.5%",
+                        fontSize: 18,
+                      }}
+                    >
+                      Direct / Stop
+                    </Typography>
+                    <Typography
+                      sx={{
+                        marginLeft: "70%",
+                        fontSize: 25,
+                        marginTop: "-4",
+                      }}
+                    >
+                      Airport
+                    </Typography>
+                  </Box>
+                </div>
+              </AccordionSummary>
+              <AccordionDetails
+                sx={{
+                  padding: 2,
+                  border: 3,
+                  borderTop: 0,
+                  marginLeft: 3,
+                  marginRight: 3,
+                  marginTop: 0,
+                  marginBottom: 0,
+                  borderBottomLeftRadius: 30,
+                  borderBottomRightRadius: 30,
+                }}
+              >
+                <Typography>Airline - Flight Number</Typography>
+                <Box
+                  sx={{ marginLeft: "5%", marginTop: "2%", marginBottom: "2%" }}
+                >
+                  <Box sx={{ display: "Flex", flexDirection: "row" }}>
+                    <CircleOutlinedIcon />
+                    <Typography sx={{ marginLeft: "2%" }}>
+                      Time Depart
+                    </Typography>
+                    <Typography sx={{ marginLeft: "5%" }}>Airport</Typography>
+                  </Box>
+                  <Divider
+                    orientation="vertical"
+                    sx={{
+                      background: "black",
+                      width: 100,
+                      transform: "rotate(90deg)",
+                      border: 1,
+                      marginLeft: "-6%",
+                      marginTop: "7.5%",
+                      marginBottom: "7.25%",
+                    }}
+                  />
                   <Typography
                     sx={{
-                      marginLeft: "43%",
-                      marginTop: "-3%",
-                      marginBottom: "-5.5%",
-                      fontSize: 18,
+                      marginLeft: "8%",
+                      marginTop: "-9%",
+                      marginBottom: "5.25%",
                     }}
                   >
                     Total Time
                   </Typography>
-                  <Typography
-                    sx={{ marginLeft: "66%", marginTop: "-4%", fontSize: 25 }}
-                  >
-                    Time Depart
-                  </Typography>
-                  <Divider
-                    style={{
-                      width: "60%",
-                      borderWidth: 1,
-                      background: "black",
-                      marginLeft: "20%",
-                      marginTop: ".25%",
-                    }}
-                  />
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: 12,
-                      height: 12,
-                      borderRadius: "50%",
-                      background: "black",
-                    }}
-                  />
-                  <Typography
-                    sx={{ marginLeft: "16%", fontSize: 25, marginTop: ".15%" }}
-                  >
-                    Airport
-                  </Typography>
-                  <Typography
-                    sx={{
-                      marginLeft: "43%",
-                      marginTop: "-4.75%",
-                      marginBottom: "-5.5%",
-                      fontSize: 18,
-                    }}
-                  >
-                    Direct / Stop
-                  </Typography>
-                  <Typography
-                    sx={{
-                      marginLeft: "70%",
-                      fontSize: 25,
-                      marginTop: "-4",
-                    }}
-                  >
-                    Airport
+                  <Box sx={{ display: "Flex", flexDirection: "row" }}>
+                    <CircleOutlinedIcon />
+                    <Typography sx={{ marginLeft: "2%" }}>
+                      Time Depart
+                    </Typography>
+                    <Typography sx={{ marginLeft: "5%" }}>Airport</Typography>
+                  </Box>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: "lightgray",
+                    borderRadius: 2,
+                    marginTop: 3,
+                    marginBottom: 3,
+                  }}
+                >
+                  <Typography sx={{ marginLeft: 5 }}>
+                    Connection Time
                   </Typography>
                 </Box>
-              </div>
-            </AccordionSummary>
-            <AccordionDetails
+                <Box
+                  sx={{ marginLeft: "5%", marginTop: "2%", marginBottom: "2%" }}
+                >
+                  <Box sx={{ display: "Flex", flexDirection: "row" }}>
+                    <CircleOutlinedIcon />
+                    <Typography sx={{ marginLeft: "2%" }}>
+                      Time Depart
+                    </Typography>
+                    <Typography sx={{ marginLeft: "5%" }}>Airport</Typography>
+                  </Box>
+                  <Divider
+                    orientation="vertical"
+                    sx={{
+                      background: "black",
+                      width: 100,
+                      transform: "rotate(90deg)",
+                      border: 1,
+                      marginLeft: "-6%",
+                      marginTop: "7.5%",
+                      marginBottom: "7.25%",
+                    }}
+                  />
+                  <Typography
+                    sx={{
+                      marginLeft: "8%",
+                      marginTop: "-9%",
+                      marginBottom: "5.25%",
+                    }}
+                  >
+                    Total Time
+                  </Typography>
+                  <Box sx={{ display: "Flex", flexDirection: "row" }}>
+                    <CircleOutlinedIcon />
+                    <Typography sx={{ marginLeft: "2%" }}>
+                      Time Depart
+                    </Typography>
+                    <Typography sx={{ marginLeft: "5%" }}>Airport</Typography>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "Flex",
+                      flexDirection: "row",
+                      marginTop: "4%",
+                      marginBottom: "-2%",
+                      marginLeft: "-5%",
+                    }}
+                  >
+                    <Typography>Arrives:</Typography>
+                    <Typography sx={{ marginLeft: "1%" }}>
+                      Arrival Time
+                    </Typography>
+                    <Typography sx={{ marginLeft: "10%" }}>
+                      Total Hours
+                    </Typography>
+                  </Box>
+                </Box>
+              </AccordionDetails>
+            </Accordion>
+            <Box
               sx={{
-                padding: 2,
-                border: 3,
-                borderTop: 0,
-                marginLeft: 3,
-                marginRight: 3,
-                marginTop: -3,
-                borderBottomLeftRadius: 30,
-                borderBottomRightRadius: 30,
+                display: "flex",
+                flexDirection: "row",
+                marginTop: "2%",
+                marginBottom: "-2%",
               }}
             >
-              <Typography>Airline - Flight Number</Typography>
-              <Box
-                sx={{ marginLeft: "5%", marginTop: "2%", marginBottom: "2%" }}
+              <Typography
+                sx={{
+                  fontSize: 25,
+                  marginLeft: "5%",
+                }}
               >
-                <CircleOutlinedIcon />
-                <Divider
-                  orientation="vertical"
-                  sx={{
-                    background: "black",
-                    width: "21%",
-                    transform: "rotate(90deg)",
-                    border: 1,
-                    marginLeft: "-8.90%",
-                    marginTop: "9.5%",
-                    marginBottom: "10%",
-                  }}
-                />
-                <CircleOutlinedIcon />
-              </Box>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel2a-content"
-              id="panel2a-header"
-            >
-              <Typography>Accordion 2</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Suspendisse malesuada lacus ex, sit amet blandit leo lobortis
-                eget.
+                Return
               </Typography>
-            </AccordionDetails>
-          </Accordion>
-        </div>
-      </Box>
+
+              <Typography sx={{ fontSize: 25, marginLeft: "5%" }}>
+                Date of Departure
+              </Typography>
+            </Box>
+            <Accordion expanded={expandSecond} onChange={handleExpandSecond}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+                sx={{
+                  border: 3,
+                  margin: 3,
+                  borderBottomLeftRadius: expandSecond ? 0 : 30,
+                  borderBottomRightRadius: expandSecond ? 0 : 30,
+                  borderTopLeftRadius: 30,
+                  borderTopRightRadius: 30,
+                }}
+              >
+                <div style={{ marginLeft: "5%" }}>
+                  <img
+                    src={logo}
+                    alt="airline"
+                    style={{
+                      width: "10%",
+                      marginTop: "2%",
+                      marginBottom: "1%",
+                      marginLeft: "-3%",
+                      border: "1px solid",
+                      borderColor: "black",
+                      borderRadius: "10%",
+                    }}
+                  />
+                  <Box sx={{ marginTop: "-12%" }}>
+                    <Typography
+                      sx={{
+                        marginLeft: "12%",
+                        marginTop: "-8%",
+                        marginBottom: "-5%",
+                        fontSize: 25,
+                      }}
+                    >
+                      Time Depart
+                    </Typography>
+                    <Typography
+                      sx={{
+                        marginLeft: "43%",
+                        marginTop: "-3%",
+                        marginBottom: "-5.5%",
+                        fontSize: 18,
+                      }}
+                    >
+                      Total Time
+                    </Typography>
+                    <Typography
+                      sx={{ marginLeft: "66%", marginTop: "-4%", fontSize: 25 }}
+                    >
+                      Time Depart
+                    </Typography>
+                    <Divider
+                      style={{
+                        width: "60%",
+                        borderWidth: 1,
+                        background: "black",
+                        marginLeft: "20%",
+                        marginTop: ".25%",
+                      }}
+                    />
+                    <span
+                      style={{
+                        position: "absolute",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: 12,
+                        height: 12,
+                        borderRadius: "50%",
+                        background: "black",
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        marginLeft: "16%",
+                        fontSize: 25,
+                        marginTop: ".15%",
+                      }}
+                    >
+                      Airport
+                    </Typography>
+                    <Typography
+                      sx={{
+                        marginLeft: "43%",
+                        marginTop: "-4.75%",
+                        marginBottom: "-5.5%",
+                        fontSize: 18,
+                      }}
+                    >
+                      Direct / Stop
+                    </Typography>
+                    <Typography
+                      sx={{
+                        marginLeft: "70%",
+                        fontSize: 25,
+                        marginTop: "-4",
+                      }}
+                    >
+                      Airport
+                    </Typography>
+                  </Box>
+                </div>
+              </AccordionSummary>
+              <AccordionDetails
+                sx={{
+                  padding: 2,
+                  border: 3,
+                  borderTop: 0,
+                  marginLeft: 3,
+                  marginRight: 3,
+                  marginTop: 0,
+                  marginBottom: 0,
+                  borderBottomLeftRadius: 30,
+                  borderBottomRightRadius: 30,
+                }}
+              >
+                <Typography>Airline - Flight Number</Typography>
+                <Box
+                  sx={{ marginLeft: "5%", marginTop: "2%", marginBottom: "2%" }}
+                >
+                  <Box sx={{ display: "Flex", flexDirection: "row" }}>
+                    <CircleOutlinedIcon />
+                    <Typography sx={{ marginLeft: "2%" }}>
+                      Time Depart
+                    </Typography>
+                    <Typography sx={{ marginLeft: "5%" }}>Airport</Typography>
+                  </Box>
+                  <Divider
+                    orientation="vertical"
+                    sx={{
+                      background: "black",
+                      width: 100,
+                      transform: "rotate(90deg)",
+                      border: 1,
+                      marginLeft: "-6%",
+                      marginTop: "7.5%",
+                      marginBottom: "7.25%",
+                    }}
+                  />
+                  <Typography
+                    sx={{
+                      marginLeft: "8%",
+                      marginTop: "-9%",
+                      marginBottom: "5.25%",
+                    }}
+                  >
+                    Total Time
+                  </Typography>
+                  <Box sx={{ display: "Flex", flexDirection: "row" }}>
+                    <CircleOutlinedIcon />
+                    <Typography sx={{ marginLeft: "2%" }}>
+                      Time Depart
+                    </Typography>
+                    <Typography sx={{ marginLeft: "5%" }}>Airport</Typography>
+                  </Box>
+                </Box>
+                <Box
+                  sx={{
+                    backgroundColor: "lightgray",
+                    borderRadius: 2,
+                    marginTop: 3,
+                    marginBottom: 3,
+                  }}
+                >
+                  <Typography sx={{ marginLeft: 5 }}>
+                    Connection Time
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{ marginLeft: "5%", marginTop: "2%", marginBottom: "2%" }}
+                >
+                  <Box sx={{ display: "Flex", flexDirection: "row" }}>
+                    <CircleOutlinedIcon />
+                    <Typography sx={{ marginLeft: "2%" }}>
+                      Time Depart
+                    </Typography>
+                    <Typography sx={{ marginLeft: "5%" }}>Airport</Typography>
+                  </Box>
+                  <Divider
+                    orientation="vertical"
+                    sx={{
+                      background: "black",
+                      width: 100,
+                      transform: "rotate(90deg)",
+                      border: 1,
+                      marginLeft: "-6%",
+                      marginTop: "7.5%",
+                      marginBottom: "7.25%",
+                    }}
+                  />
+                  <Typography
+                    sx={{
+                      marginLeft: "8%",
+                      marginTop: "-9%",
+                      marginBottom: "5.25%",
+                    }}
+                  >
+                    Total Time
+                  </Typography>
+                  <Box sx={{ display: "Flex", flexDirection: "row" }}>
+                    <CircleOutlinedIcon />
+                    <Typography sx={{ marginLeft: "2%" }}>
+                      Time Depart
+                    </Typography>
+                    <Typography sx={{ marginLeft: "5%" }}>Airport</Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "Flex",
+                      flexDirection: "row",
+                      marginTop: "4%",
+                      marginBottom: "-2%",
+                      marginLeft: "-5%",
+                    }}
+                  >
+                    <Typography>Arrives:</Typography>
+                    <Typography sx={{ marginLeft: "1%" }}>
+                      Arrival Time
+                    </Typography>
+                    <Typography sx={{ marginLeft: "10%" }}>
+                      Total Hours
+                    </Typography>
+                  </Box>
+                </Box>
+              </AccordionDetails>
+            </Accordion>
+          </div>
+        </Box>
+      </Popover>
     </>
   );
 };
