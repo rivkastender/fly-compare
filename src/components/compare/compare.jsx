@@ -151,612 +151,127 @@ export const Compare = () => {
     <>
       {compareState.compare.map((state, index) => (
         <>
-          <Accordion
-            expanded={expanded}
-            onChange={handleExpand}
+          <Box
+            boxShadow={15}
             sx={{
-              borderRadius: "8px",
-              boxShadow: "none",
-              borderTop: "none",
-              borderBottom: "none",
-              maxWidth: "35%",
-              flexDirection: "row",
-              overflow: "auto",
+              width: "35%",
+              maxHeight: "150px",
+              borderRadius: 4,
+              margin: "auto",
+              border: 3,
+              padding: 5,
+              marginTop: "5%",
+              overflow: "hidden",
+              position: "center",
+              borderRadius: 15,
             }}
           >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="accordion-content"
-              id="accordion-header"
-            >
-              <Box
-                boxShadow={15}
-                sx={{
-                  width: "100%",
-                  maxHeight: "150px",
-                  borderRadius: 4,
-                  margin: "auto",
-                  border: 3,
-                  padding: 5,
-                  marginTop: "5%",
-                  overflow: "hidden",
-                  position: "center",
-                  borderRadius: 15,
-                }}
-              >
-                <Button
-                  onClick={() =>
-                    removeState(state.flightinfo.ppn_contract_bundle)
-                  }
-                >
-                  <CloseIcon sx={{ marginLeft: "95%", marginTop: -150 }} />
-                </Button>
+            <div onClick={() => removeState(state.flightinfo)}>
+              <CloseIcon sx={{ marginLeft: "95%", marginTop: -150 }} />
+            </div>
 
-                {state.flightinfo &&
-                  state.flightinfo.slice_data &&
-                  Object.values(state.flightinfo.slice_data).map((way) => (
-                    <>
-                      <div
-                        style={{
-                          marginLeft: "2%",
-                          marginTop: "-2%",
-                          marginBottom: "7%",
-                        }}
-                      >
-                        <div>
-                          <Tooltip title={way.airline.name}>
-                            <img
-                              src={way.airline.logo}
-                              alt="airline"
-                              style={{
-                                width: "9%",
-                                borderRadius: "10%",
-                                marginTop: "5%",
-                                marginBottom: "-5%",
-                              }}
-                            />
-                          </Tooltip>
-
-                          <Divider
-                            style={{
-                              width: "55%",
-                              borderWidth: 1,
-                              background: "black",
-                              marginLeft: "30%",
-                              marginTop: ".25%",
-                            }}
-                          />
-                          {way.info.connection_count > 0 && (
-                            <CircleIcon
-                              style={{
-                                position: "absolute",
-                                left: "51.5%",
-                                transform: "translate(-50%, -50%)",
-                                width: 12,
-                                height: 12,
-                                borderRadius: "50%",
-                                background: "black",
-                              }}
-                            />
-                          )}
-
-                          <Box sx={{ marginBottom: "3%" }}>
-                            <Tooltip title={way.departure.airport.name}>
-                              <Typography
-                                sx={{
-                                  fontSize: 25,
-                                  maxWidth: "70px",
-                                  marginLeft: "16%",
-                                  maxHeight: "20px",
-                                  marginTop: "-4%",
-                                }}
-                              >
-                                {way.departure.airport.code}
-                              </Typography>
-                            </Tooltip>
-                            <Tooltip
-                              title={getConnections(
-                                way,
-                                way.info.connection_count
-                              )}
-                            >
-                              <Typography
-                                sx={{
-                                  fontSize: 18,
-                                  maxWidth: "100px",
-                                  marginLeft: "48%",
-                                  marginTop: "1%",
-                                  maxHeight: "20px",
-                                }}
-                              >
-                                {way.info.connection_count > 0
-                                  ? `${way.info.connection_count} ${
-                                      way.info.connection_count > 1
-                                        ? "Stops"
-                                        : "Stop"
-                                    }`
-                                  : "Direct Flight"}
-                              </Typography>
-                            </Tooltip>
-                            <Tooltip title={way.arrival.airport.name}>
-                              <Typography
-                                sx={{
-                                  fontSize: 25,
-                                  maxWidth: "70px",
-                                  marginLeft: "88%",
-                                  maxHeight: "20px",
-                                  marginTop: "-12%",
-                                }}
-                              >
-                                {way.arrival.airport.code}
-                              </Typography>
-                            </Tooltip>
-                          </Box>
-                        </div>
-                      </div>
-                    </>
-                  ))}
-              </Box>
-            </AccordionSummary>
-
-            <AccordionDetails
-              id={id}
-              open={open}
-              onClose={handleClose}
-              style={{ minWidth: "800px", overflow: "auto" }}
-            >
-              <Box
-                sx={{
-                  minHeight: 300,
-                  minWidth: 800,
-                  border: 3,
-                  borderRadius: 0,
-                }}
-              >
-                <Box
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    marginLeft: "80%",
-                    fontSize: 25,
-                  }}
-                >
-                  <Checkbox
-                    name={`checkbox-${selectedItemId}`}
-                    checked={checked[`checkbox-${selectedItemId}`] || false}
-                    onChange={handleChange}
-                    onClick={() =>
-                      addCompare(flightData[selectedItemId].ppn_contract_bundle)
-                    }
-                  />
-                  <Typography
+            {state.flightinfo &&
+              state.flightinfo.slice_data &&
+              Object.values(state.flightinfo.slice_data).map((way) => (
+                <>
+                  <div
                     style={{
-                      fontSize: 20,
-                      marginTop: "4.5%",
-                      marginLeft: "-5%",
+                      marginLeft: "2%",
+                      marginTop: "-2%",
+                      marginBottom: "7%",
                     }}
                   >
-                    Compare
-                  </Typography>
-                </Box>
-                {flightData[selectedItemId] &&
-                  flightData[selectedItemId].slice_data &&
-                  Object.values(flightData[selectedItemId].slice_data).map(
-                    (way) => (
-                      <>
-                        <div>
-                          <Box
-                            sx={{
-                              marginBottom: "2%",
-                            }}
-                          >
-                            <Typography sx={{ fontSize: 25, marginLeft: "5%" }}>
-                              {way.departure.datetime.date_display}
-                            </Typography>
-                          </Box>
-                          <Accordion
-                            expanded={expanded}
-                            onChange={handleExpand}
-                            sx={{
-                              borderRadius: "8px",
-                              boxShadow: "none",
-                              borderTop: "none",
-                              borderBottom: "none",
-                            }}
-                          >
-                            <AccordionSummary
-                              expandIcon={<ExpandMoreIcon />}
-                              aria-controls="panel1a-content"
-                              id="panel1a-header"
-                              sx={{
-                                border: 3,
-                                marginTop: 1,
-                                marginLeft: 3,
-                                marginRight: 3,
-                                borderBottomLeftRadius: expanded ? 0 : 30,
-                                borderBottomRightRadius: expanded ? 0 : 30,
-                                borderTopLeftRadius: 30,
-                                borderTopRightRadius: 30,
-                              }}
-                            >
-                              <div
-                                style={{
-                                  marginLeft: "-1%",
-                                  marginBottom: ".5%",
-                                }}
-                              >
-                                <Tooltip title={way.airline.name}>
-                                  <img
-                                    src={way.airline.logo}
-                                    alt="airline"
-                                    style={{
-                                      width: "18%",
-                                      borderRadius: "10%",
-                                    }}
-                                  />
-                                </Tooltip>
-                                <Box
-                                  sx={{
-                                    marginLeft: "15%",
-                                    marginTop: "-16.5%",
-                                  }}
-                                >
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      flexDirection: "row",
-                                      marginTop: "-10%",
-                                    }}
-                                  >
-                                    <Typography
-                                      sx={{
-                                        marginLeft: "14%",
-                                        fontSize: 25,
-                                        maxWidth: "70px",
-                                      }}
-                                    >
-                                      {way.departure.datetime.time_12h}
-                                    </Typography>
-                                    <Typography
-                                      sx={{
-                                        marginLeft: "45%",
-                                        fontSize: 18,
-                                        minWidth: "300px",
-                                        marginTop: "1%",
-                                      }}
-                                    >
-                                      {convertTime(way.info.duration)}
-                                    </Typography>
-                                    <Typography
-                                      sx={{
-                                        marginLeft: "-20%",
-                                        fontSize: 25,
-                                        maxWidth: "70px",
-                                      }}
-                                    >
-                                      {way.arrival.datetime.time_12h}
-                                    </Typography>
-                                    {getDateDifference(
-                                      way.departure.datetime.date,
-                                      way.arrival.datetime.date
-                                    ) > 0 && (
-                                      <Typography
-                                        sx={{
-                                          marginLeft: isTimeAfter10(
-                                            way.arrival.datetime.time_12h
-                                          )
-                                            ? "4%"
-                                            : "2%",
-                                        }}
-                                      >
-                                        {getDateDifference(
-                                          way.departure.datetime.date,
-                                          way.arrival.datetime.date
-                                        )}
-                                      </Typography>
-                                    )}
-                                  </Box>
-                                  <Divider
-                                    style={{
-                                      width: "135%",
-                                      borderWidth: 1,
-                                      background: "black",
-                                      marginLeft: "20%",
-                                      marginTop: ".25%",
-                                    }}
-                                  />
-                                  {way.info.connection_count > 0 && (
-                                    <CircleIcon
-                                      style={{
-                                        position: "absolute",
-                                        left: "53%",
-                                        transform: "translate(-50%, -50%)",
-                                        width: 12,
-                                        height: 12,
-                                        borderRadius: "50%",
-                                        background: "black",
-                                      }}
-                                    />
-                                  )}
+                    <div>
+                      <Tooltip title={way.airline.name}>
+                        <img
+                          src={way.airline.logo}
+                          alt="airline"
+                          style={{
+                            width: "9%",
+                            borderRadius: "10%",
+                            marginTop: "5%",
+                            marginBottom: "-5%",
+                          }}
+                        />
+                      </Tooltip>
 
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      flexDirection: "row",
-                                    }}
-                                  >
-                                    <Tooltip title={way.departure.airport.name}>
-                                      <Typography
-                                        sx={{
-                                          fontSize: 25,
-                                          maxWidth: "70px",
-                                          marginLeft: "14%",
-                                          maxHeight: "20px",
-                                        }}
-                                      >
-                                        {way.departure.airport.code}
-                                      </Typography>
-                                    </Tooltip>
-                                    <Tooltip
-                                      title={getConnections(
-                                        way,
-                                        way.info.connection_count
-                                      )}
-                                    >
-                                      <Typography
-                                        sx={{
-                                          fontSize: 18,
-                                          minWidth: "100px",
-                                          marginLeft: "51%",
-                                          marginTop: "1%",
-                                          maxHeight: "20px",
-                                        }}
-                                      >
-                                        {way.info.connection_count > 0
-                                          ? `${way.info.connection_count} ${
-                                              way.info.connection_count > 1
-                                                ? "Stops"
-                                                : "Stop"
-                                            }`
-                                          : "Direct Flight"}
-                                      </Typography>
-                                    </Tooltip>
-                                    <Tooltip title={way.arrival.airport.name}>
-                                      <Typography
-                                        sx={{
-                                          fontSize: 25,
-                                          maxWidth: "70px",
-                                          marginLeft: "40%",
-                                          maxHeight: "20px",
-                                        }}
-                                      >
-                                        {way.arrival.airport.code}
-                                      </Typography>
-                                    </Tooltip>
-                                  </Box>
-                                </Box>
-                              </div>
-                            </AccordionSummary>
-                            <AccordionDetails
-                              sx={{
-                                padding: 2,
-                                border: 3,
-                                borderTop: 0,
-                                marginLeft: 3,
-                                marginRight: 3,
-                                marginTop: 0,
-                                marginBottom: 0,
-                                borderBottomLeftRadius: 30,
-                                borderBottomRightRadius: 30,
-                              }}
-                            >
-                              <Typography>
-                                {`${way.flight_data.flight_0.info.marketing_airline} - `}
-                                {`${way.flight_data.flight_0.info.marketing_airline_code} `}
-                                {way.flight_data.flight_0.info.flight_number}
-                              </Typography>
-                              <Box
-                                sx={{
-                                  marginLeft: "5%",
-                                  marginTop: "2%",
-                                  marginBottom: "2%",
-                                }}
-                              >
-                                <Box
-                                  sx={{
-                                    display: "Flex",
-                                    flexDirection: "row",
-                                  }}
-                                >
-                                  <CircleOutlinedIcon />
-                                  <Typography sx={{ marginLeft: "2%" }}>
-                                    {
-                                      way.flight_data.flight_0.departure
-                                        .datetime.time_12h
-                                    }
-                                  </Typography>
-                                  <Tooltip
-                                    title={
-                                      way.flight_data.flight_0.departure.airport
-                                        .name
-                                    }
-                                  >
-                                    <Typography sx={{ marginLeft: "5%" }}>
-                                      {
-                                        way.flight_data.flight_0.departure
-                                          .airport.code
-                                      }
-                                    </Typography>
-                                  </Tooltip>
-                                </Box>
-                                <Divider
-                                  orientation="vertical"
-                                  sx={{
-                                    background: "black",
-                                    width: 100,
-                                    transform: "rotate(90deg)",
-                                    border: 1,
-                                    marginLeft: "-6%",
-                                    marginTop: "7.5%",
-                                    marginBottom: "7.25%",
-                                  }}
-                                />
-                                <Typography
-                                  sx={{
-                                    marginLeft: "8%",
-                                    marginTop: "-9%",
-                                    marginBottom: "5.25%",
-                                  }}
-                                >
-                                  {convertTime(
-                                    way.flight_data.flight_0.info.duration
-                                  )}
-                                </Typography>
-                                <Box
-                                  sx={{
-                                    display: "Flex",
-                                    flexDirection: "row",
-                                  }}
-                                >
-                                  <CircleOutlinedIcon />
-                                  <Typography sx={{ marginLeft: "2%" }}>
-                                    {way.arrival.datetime.time_12h}
-                                  </Typography>
-                                  <Tooltip title={way.arrival.airport.name}>
-                                    <Typography sx={{ marginLeft: "5%" }}>
-                                      {way.arrival.airport.code}
-                                    </Typography>
-                                  </Tooltip>
-                                </Box>
-                              </Box>
-                              {way.flight_data &&
-                                mapValues(way.flight_data).map(
-                                  (value, index) => (
-                                    <>
-                                      <Box
-                                        sx={{
-                                          backgroundColor: "lightgray",
-                                          borderRadius: 2,
-                                          marginTop: 3,
-                                          marginBottom: 3,
-                                        }}
-                                      >
-                                        <Typography sx={{ marginLeft: 5 }}>
-                                          908
-                                          {/* {way.flight_data &&
-                              convertTime(
-                                Object.values(way.flight_data)[index].info
-                                  .notes[0].duration
-                              )} */}
-                                        </Typography>
-                                      </Box>
-                                      <Typography>
-                                        {`${value.info.marketing_airline} - `}
-                                        {`${value.info.marketing_airline_code} `}
-                                        {value.info.flight_number}
-                                      </Typography>
-                                      <Box
-                                        sx={{
-                                          marginLeft: "5%",
-                                          marginTop: "2%",
-                                          marginBottom: "2%",
-                                        }}
-                                      >
-                                        <Box
-                                          sx={{
-                                            display: "Flex",
-                                            flexDirection: "row",
-                                          }}
-                                        >
-                                          <CircleOutlinedIcon />
-                                          <Typography sx={{ marginLeft: "2%" }}>
-                                            {value.departure.datetime.time_12h}
-                                          </Typography>
-                                          <Tooltip
-                                            title={
-                                              value?.departure.airport.name
-                                            }
-                                          >
-                                            <Typography
-                                              sx={{ marginLeft: "5%" }}
-                                            >
-                                              {value.departure.airport.code}
-                                            </Typography>
-                                          </Tooltip>
-                                        </Box>
-                                        <Divider
-                                          orientation="vertical"
-                                          sx={{
-                                            background: "black",
-                                            width: 100,
-                                            transform: "rotate(90deg)",
-                                            border: 1,
-                                            marginLeft: "-6%",
-                                            marginTop: "7.5%",
-                                            marginBottom: "7.25%",
-                                          }}
-                                        />
-                                        <Typography
-                                          sx={{
-                                            marginLeft: "8%",
-                                            marginTop: "-9%",
-                                            marginBottom: "5.25%",
-                                          }}
-                                        >
-                                          {convertTime(value.info.duration)}
-                                        </Typography>
-                                        <Box
-                                          sx={{
-                                            display: "Flex",
-                                            flexDirection: "row",
-                                          }}
-                                        >
-                                          <CircleOutlinedIcon />
-                                          <Typography sx={{ marginLeft: "2%" }}>
-                                            {value.arrival.datetime.time_12h}
-                                          </Typography>
-                                          <Tooltip
-                                            title={value?.arrival.airport.name}
-                                          >
-                                            <Typography
-                                              sx={{ marginLeft: "5%" }}
-                                            >
-                                              {value.arrival.airport.code}
-                                            </Typography>
-                                          </Tooltip>
-                                        </Box>
-                                      </Box>
-                                    </>
-                                  )
-                                )}
-                              <Box
-                                sx={{
-                                  display: "Flex",
-                                  flexDirection: "row",
-                                }}
-                              >
-                                <Typography>Arrives:</Typography>
-                                <Typography sx={{ marginLeft: "1%" }}>
-                                  {way.arrival.datetime.time_12h}
-                                </Typography>
-                                <Typography sx={{ marginLeft: "10%" }}>
-                                  {convertTime(way.info.duration)}
-                                </Typography>
-                              </Box>
-                            </AccordionDetails>
-                          </Accordion>
-                          <Box
+                      <Divider
+                        style={{
+                          width: "55%",
+                          borderWidth: 1,
+                          background: "black",
+                          marginLeft: "30%",
+                          marginTop: ".25%",
+                        }}
+                      />
+                      {way.info.connection_count > 0 && (
+                        <CircleIcon
+                          style={{
+                            position: "absolute",
+                            left: "51.5%",
+                            transform: "translate(-50%, -50%)",
+                            width: 12,
+                            height: 12,
+                            borderRadius: "50%",
+                            background: "black",
+                          }}
+                        />
+                      )}
+
+                      <Box sx={{ marginBottom: "3%" }}>
+                        <Tooltip title={way.departure.airport.name}>
+                          <Typography
                             sx={{
-                              minHeight: 20,
+                              fontSize: 25,
+                              maxWidth: "70px",
+                              marginLeft: "16%",
+                              maxHeight: "20px",
+                              marginTop: "-4%",
                             }}
-                          ></Box>
-                        </div>
-                      </>
-                    )
-                  )}
-              </Box>
-            </AccordionDetails>
-          </Accordion>
+                          >
+                            {way.departure.airport.code}
+                          </Typography>
+                        </Tooltip>
+                        <Tooltip
+                          title={getConnections(way, way.info.connection_count)}
+                        >
+                          <Typography
+                            sx={{
+                              fontSize: 18,
+                              maxWidth: "100px",
+                              marginLeft: "48%",
+                              marginTop: "1%",
+                              maxHeight: "20px",
+                            }}
+                          >
+                            {way.info.connection_count > 0
+                              ? `${way.info.connection_count} ${
+                                  way.info.connection_count > 1
+                                    ? "Stops"
+                                    : "Stop"
+                                }`
+                              : "Direct Flight"}
+                          </Typography>
+                        </Tooltip>
+                        <Tooltip title={way.arrival.airport.name}>
+                          <Typography
+                            sx={{
+                              fontSize: 25,
+                              maxWidth: "70px",
+                              marginLeft: "88%",
+                              maxHeight: "20px",
+                              marginTop: "-12%",
+                            }}
+                          >
+                            {way.arrival.airport.code}
+                          </Typography>
+                        </Tooltip>
+                      </Box>
+                    </div>
+                  </div>
+                </>
+              ))}
+          </Box>
         </>
       ))}
     </>

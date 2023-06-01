@@ -1089,12 +1089,7 @@ export const Home = () => {
                               }}
                             >
                               <Typography sx={{ marginLeft: 5 }}>
-                                908
-                                {/* {way.flight_data &&
-                                  convertTime(
-                                    Object.values(way.flight_data)[index].info
-                                      .notes[0].duration
-                                  )} */}
+                                Connection
                               </Typography>
                             </Box>
                             <Typography>
