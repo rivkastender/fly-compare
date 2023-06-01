@@ -332,27 +332,44 @@ export const Status = () => {
                     >
                       {flight.departure_iata}
                     </Typography>
-
-                    <FlightIcon
-                      sx={{
-                        transform: "rotate(90deg)",
-                        color: findStatusColor(flight),
-                      }}
-                    />
+                    {(flight.status == "sched" || flight.status == "canc") && (
+                      <FlightIcon
+                        sx={{
+                          transform: "rotate(90deg)",
+                          color: findStatusColor(flight),
+                        }}
+                      />
+                    )}
                     <Divider
                       style={{
                         width: "72%",
                         borderWidth: 1,
                         backgroundColor: findStatusColor(flight),
+                        position: "relative",
                       }}
                       orientation="horizontal"
                     />
-                    <FlightIcon
-                      sx={{
-                        transform: "rotate(90deg)",
-                        color: findStatusColor(flight),
-                      }}
-                    />
+                    {flight.status != "sched" &&
+                      flight.status != "canc" &&
+                      flight.status != "landed" && (
+                        <FlightIcon
+                          sx={{
+                            marginTop: "-10%",
+                            position: "absolute",
+                            top: "50%",
+                            transform: "rotate(90deg)",
+                            color: findStatusColor(flight),
+                          }}
+                        />
+                      )}
+                    {flight.status == "landed" && (
+                      <FlightIcon
+                        sx={{
+                          transform: "rotate(90deg)",
+                          color: findStatusColor(flight),
+                        }}
+                      />
+                    )}
 
                     <Typography
                       sx={{ display: "inline", margin: "10px", fontSize: 45 }}
@@ -395,8 +412,6 @@ export const Status = () => {
                         <Typography
                           color="gray"
                           style={{
-                            marginRight: "5%",
-                            fontSize: 15,
                             marginTop: "1%",
                           }}
                         >
@@ -406,13 +421,20 @@ export const Status = () => {
                         </Typography>
                         <Typography
                           color="gray"
-                          sx={{ marginLeft: "27%", marginTop: "1%" }}
+                          sx={{
+                            marginLeft:
+                              flight.status === "sched" ? "7%" : "33%",
+                            marginTop: "1%",
+                          }}
                         >
                           Terminal
                         </Typography>
                         <Typography
                           color="gray"
-                          sx={{ marginLeft: "10%", marginTop: "1%" }}
+                          sx={{
+                            marginLeft: flight.status === "sched" ? "7%" : "5%",
+                            marginTop: "1%",
+                          }}
                         >
                           Gate
                         </Typography>
@@ -492,20 +514,7 @@ export const Status = () => {
                         <CircleIcon
                           sx={{ fontSize: 5, marginLeft: 1, marginRight: 1 }}
                         />
-                        {formatDate("2023-05-15T23:50:00-04:00")}
-
-                        <Typography
-                          color={"gray"}
-                          style={{
-                            fontSize: 12,
-                            textDecoration: "line-through",
-                          }}
-                        >
-                          {formatDate(flight.scheduled_arrival_local) !==
-                          formatDate("2023-05-15T23:50:00-04:00")
-                            ? formatDate(flight.scheduled_arrival_local)
-                            : null}
-                        </Typography>
+                        {formatDate(flight.scheduled_arrival_local)}
                       </Typography>
                       <div
                         style={{
@@ -518,8 +527,6 @@ export const Status = () => {
                         <Typography
                           color="gray"
                           style={{
-                            marginRight: "5%",
-                            fontSize: 15,
                             marginTop: "1%",
                           }}
                         >
@@ -529,13 +536,21 @@ export const Status = () => {
                         </Typography>
                         <Typography
                           color="gray"
-                          sx={{ marginLeft: "27%", marginTop: "1%" }}
+                          sx={{
+                            marginLeft:
+                              flight.status === "sched" ? "7%" : "37%",
+                            marginTop: "1%",
+                          }}
                         >
                           Terminal
                         </Typography>
                         <Typography
                           color="gray"
-                          sx={{ marginLeft: "10%", marginTop: "1%" }}
+                          sx={{
+                            marginLeft:
+                              flight.status === "sched" ? "7%" : "10%",
+                            marginTop: "1%",
+                          }}
                         >
                           Gate
                         </Typography>
@@ -559,7 +574,7 @@ export const Status = () => {
                         </Typography>
                         <Typography
                           sx={{
-                            marginLeft: "26%",
+                            marginLeft: "20%",
                             display: "inline",
                             fontSize: 30,
                           }}
