@@ -1,18 +1,17 @@
 {
   "files": {
-    "main.css": "/fly-compare/static/css/main.4ae6aabb.css",
-    "main.js": "/fly-compare/static/js/main.ed307a43.js",
+    "main.css": "/fly-compare/static/css/main.1a2eebe2.css",
+    "main.js": "/fly-compare/static/js/main.4f9e897b.js",
     "static/js/787.6c9a26af.chunk.js": "/fly-compare/static/js/787.6c9a26af.chunk.js",
-    "static/media/png.png": "/fly-compare/static/media/png.6a52575b46fb400ba9f6.png",
     "static/media/Background.svg": "/fly-compare/static/media/Background.7472124d7117dfadbe0f6653bcf9d08c.svg",
     "static/media/FlyCompare.svg": "/fly-compare/static/media/FlyCompare.ec3a6d6820316bd9e329c9b660c37270.svg",
     "index.html": "/fly-compare/index.html",
-    "main.4ae6aabb.css.map": "/fly-compare/static/css/main.4ae6aabb.css.map",
-    "main.ed307a43.js.map": "/fly-compare/static/js/main.ed307a43.js.map",
+    "main.1a2eebe2.css.map": "/fly-compare/static/css/main.1a2eebe2.css.map",
+    "main.4f9e897b.js.map": "/fly-compare/static/js/main.4f9e897b.js.map",
     "787.6c9a26af.chunk.js.map": "/fly-compare/static/js/787.6c9a26af.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.4ae6aabb.css",
-    "static/js/main.ed307a43.js"
+    "static/css/main.1a2eebe2.css",
+    "static/js/main.4f9e897b.js"
   ]
 }
