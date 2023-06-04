@@ -29,6 +29,8 @@ export const Status = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [expanded, setExpanded] = useState(0);
   const [numNoZero, setNumNoZero] = useState("");
+  const [error, setError] = useState(false);
+  const [emptyInfo, setEmptyInfo] = useState(false);
 
   const accessKey = "2d3cdd9ea8bf4d3c5752501ae9253b9f";
 
@@ -53,6 +55,8 @@ export const Status = () => {
 
   function CallAPI() {
     if (flightNum !== "" && selectedDate !== null) {
+      setEmptyInfo(false);
+      setError(false);
       fetch(
         `https://flightera-flight-data.p.rapidapi.com/flight/info?flnr=${numNoZero}&date=${selectedDate}`,
         {
@@ -70,7 +74,7 @@ export const Status = () => {
         })
         .catch((error) => console.log(error));
     } else {
-      console.log("Error empty info");
+      setEmptyInfo(true);
     }
   }
 
@@ -113,9 +117,9 @@ export const Status = () => {
 
   function timeOfFlight(depart, arrive) {
     const departTime = new Date(depart);
-    const arriveime = new Date(arrive);
+    const arriveTime = new Date(arrive);
 
-    const timeDifference = arriveime - departTime;
+    const timeDifference = arriveTime - departTime;
 
     const hours = Math.floor(timeDifference / (1000 * 60 * 60));
     const minutes = Math.floor((timeDifference / (1000 * 60)) % 60);
@@ -164,16 +168,44 @@ export const Status = () => {
 
   return (
     <>
-      <Typography
-        sx={{
-          fontSize: 48,
-          marginTop: "5%",
-          textAlign: "center",
-          marginRight: "55%",
-        }}
-      >
-        Flight status:
-      </Typography>
+      <Box sx={{ display: "flex", flexDirection: "row" }}>
+        <Typography
+          sx={{
+            fontSize: 48,
+            marginTop: "5%",
+            textAlign: "center",
+            marginLeft: "15%",
+          }}
+        >
+          Flight status:
+        </Typography>
+        {emptyInfo == true && (
+          <Typography
+            sx={{
+              fontSize: 25,
+              marginTop: "6.75%",
+              textAlign: "center",
+              color: "red",
+              marginLeft: "25%",
+            }}
+          >
+            Error: Enter required data
+          </Typography>
+        )}
+        {flightData.Error && (
+          <Typography
+            sx={{
+              fontSize: 25,
+              marginTop: "6.75%",
+              textAlign: "center",
+              color: "red",
+              marginLeft: "20%",
+            }}
+          >
+            Error: No data for this flight at this time
+          </Typography>
+        )}
+      </Box>
       <Box
         sx={{
           width: "58%",
@@ -606,7 +638,7 @@ export const Status = () => {
                           >
                             {flight.actual_departure_is_estimated
                               ? null
-                              : formatTime(flight.scheduled_arrival_local)}{" "}
+                              : formatTime(flight.scheduled_arrival_local)}
                           </Typography>
                         </div>
                       </div>

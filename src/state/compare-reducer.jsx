@@ -2,33 +2,16 @@ import cloneDeep from "lodash/cloneDeep";
 
 export const CompareAction = {
   ADD: "ADD",
-  TOGGLE: "TOGGLE",
   REMOVE: "REMOVE",
+  FIND: "FIND",
+  SET: "SET",
 };
 
 export const compareReducer = (state, action) => {
   switch (action.type) {
     case CompareAction.ADD: {
-      return { compare: [...state.compare, action.compare] };
-    }
-    case CompareAction.TOGGLE: {
-      const newCompares = cloneDeep(state.compare);
-      const updateCompare = newCompares.find(
-        (x) =>
-          x.flightinfo.ppn_contract_bundle ===
-          action.compare.flightinfo.ppn_contract_bundle
-      );
-      updateCompare.isChecked = !updateCompare.isChecked;
-
-      if (!updateCompare.isChecked) {
-        const index = newCompares.indexOf(updateCompare);
-        newCompares.splice(index, 1);
-      }
-
-      return {
-        ...state,
-        compare: newCompares,
-      };
+      const newCompare = [...state.compare, action.compare];
+      return { ...state, compare: newCompare };
     }
     case CompareAction.REMOVE: {
       const newState = cloneDeep(state.compare);
@@ -45,6 +28,33 @@ export const compareReducer = (state, action) => {
         ...state,
         compare: newState,
       };
+    }
+
+    case CompareAction.FIND: {
+      const isMatching = state.compare.some(
+        (item) =>
+          item.flightinfo.ppn_contract_bundle ===
+          action.flightinfo.ppn_contract_bundle
+      );
+
+      return {
+        ...state,
+        isMatching: isMatching,
+      };
+    }
+
+    case CompareAction.SET: {
+      const newSearch = {
+        search: action.search.searchby,
+        to: action.search.to,
+        from: action.search.from,
+        depart: action.search.depart,
+        return: action.search.return,
+        class: action.search.class,
+        adults: action.search.adults,
+        children: action.search.children,
+      };
+      return { ...state, search: newSearch };
     }
   }
 };

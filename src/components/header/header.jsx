@@ -120,7 +120,13 @@ export function Header() {
               onClick={() => handleCloseNavMenu({ name: "Flights", path: "/" })}
             />
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+          <Box
+            sx={{
+              marginLeft: -8,
+              flexGrow: 1,
+              display: { xs: "none", md: "flex" },
+            }}
+          >
             {pages.map((page) => (
               <Button
                 key={page.name}
@@ -128,6 +134,9 @@ export function Header() {
                 onClick={() => handleCloseNavMenu(page)}
                 sx={{
                   color: "#04628F",
+                  marginTop: "2.5%",
+                  fontSize: 20,
+                  marginRight: 2,
                 }}
               >
                 {page.name}

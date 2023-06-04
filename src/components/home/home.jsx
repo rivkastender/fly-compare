@@ -19,6 +19,7 @@ import {
   MenuItem,
   Grid,
   Input,
+  Container,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
@@ -30,8 +31,13 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 import Popover from "@mui/material/Popover";
 import CircleIcon from "@mui/icons-material/Circle";
+import CircularProgress from "@mui/material/CircularProgress";
+import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import FlightIcon from "@mui/icons-material/Flight";
 import { CompareAction } from "../../state/compare-reducer";
 import { CompareContext } from "../../state/compare-context";
+import "./home.css";
+import dayjs from "dayjs";
 
 export const Home = () => {
   const [selectedValue, setSelectedValue] = useState("round_trip");
@@ -46,6 +52,11 @@ export const Home = () => {
   const [to, setTo] = useState("");
   const [departDate, setDepartureDate] = useState(null);
   const [arriveDate, setArriveDate] = useState(null);
+  const [flightValue, setFlightValue] = useState("Round Trip");
+  const [clicked, setClicked] = useState(false);
+  const [error, setError] = useState(false);
+  const [emptyInfo, setEmptyInfo] = useState(false);
+  const [selectedStartDate, setSelectedStartDate] = useState(null);
 
   const { compareState, compareDispatch } = useContext(CompareContext);
 
@@ -70,7 +81,40 @@ export const Home = () => {
     }
   }
 
-  console.log(compareState.compare);
+  function setSearch() {
+    const item = {
+      searchby: flightValue,
+      to: to,
+      from: from,
+      depart: departDate.toISOString().split("T")[0],
+      return: arriveDate.toISOString().split("T")[0],
+      class: selectedVal,
+      adults: adults,
+      children: children,
+    };
+
+    compareDispatch({
+      type: CompareAction.SET,
+      search: item,
+    });
+  }
+
+  function setData() {
+    if (compareState.search != null) {
+      setFrom(compareState.search.from);
+      setTo(compareState.search.to);
+
+      setAdults(compareState.search.adults);
+      setChildren(compareState.search.children);
+      setSelectedVal(compareState.search.class);
+      setFlightValue(compareState.search.search);
+
+      if (flightValue == "Round Trip") CallAPIRoundTrip();
+      else CallAPIOneWay();
+    }
+  }
+
+  console.log(compareState);
   const handleClick = (event, index) => {
     setAnchorEl(event.currentTarget);
     setSelectedItemId(index);
@@ -116,64 +160,111 @@ export const Home = () => {
   }
 
   const CallAPIRoundTrip = () => {
-    fetch(
-      `https://priceline-com-provider.p.rapidapi.com/v2/flight/roundTrip?sid=iSiX639&adults=${adults}&departure_date=${formatDate(
-        departDate
-      )}%2C${formatDate(
-        arriveDate
-      )}&destination_airport_code=${to}%2C${from}&cabin_class=${selectedVal}&origin_airport_code=${from}%2C${to}&children=${children}`,
-      {
-        method: "GET",
-        headers: {
-          "X-RapidAPI-Host": "priceline-com-provider.p.rapidapi.com",
-          "X-RapidAPI-Key":
-            "91bd8cf149msh10c65b76df66871p1185a2jsnd808611734d1",
-        },
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data.getAirFlightRoundTrip.results.result.itinerary_data);
-        const itinerary_data =
-          data.getAirFlightRoundTrip.results.result.itinerary_data;
-        console.log("apiData");
-        console.log(data);
+    setEmptyInfo(false);
+    setError(false);
+    setFlightData([]);
+    if (departDate != null && arriveDate != null && to != "" && from != "") {
+      setClicked(true);
 
-        const apiData = Object.values(itinerary_data);
-        setFlightData(apiData);
-      });
+      fetch(
+        `https://priceline-com-provider.p.rapidapi.com/v2/flight/roundTrip?sid=iSiX639&adults=${adults}&departure_date=${formatDate(
+          departDate
+        )}%2C${formatDate(
+          arriveDate
+        )}&destination_airport_code=${to}%2C${from}&cabin_class=${selectedVal}&origin_airport_code=${from}%2C${to}&children=${children}`,
+        {
+          method: "GET",
+          headers: {
+            "X-RapidAPI-Host": "priceline-com-provider.p.rapidapi.com",
+            "X-RapidAPI-Key":
+              "91bd8cf149msh10c65b76df66871p1185a2jsnd808611734d1",
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          if (data.getAirFlightRoundTrip.error != null) {
+            setError(true);
+            setFlightData([]);
+          } else {
+            setError(false);
+            setClicked(false);
+
+            console.log(
+              data.getAirFlightRoundTrip.results.result.itinerary_data
+            );
+            const itinerary_data =
+              data.getAirFlightRoundTrip.results.result.itinerary_data;
+            console.log("apiData");
+            console.log(data);
+
+            const apiData = Object.values(itinerary_data);
+
+            setFlightData(apiData);
+            setError(false);
+
+            console.log("error");
+            console.log(error);
+          }
+          setClicked(false);
+          setSearch();
+        });
+    } else {
+      setEmptyInfo(true);
+    }
   };
 
   const CallAPIOneWay = () => {
-    console.log("ow");
+    setEmptyInfo(false);
+    setError(false);
+    setFlightData([]);
 
-    fetch(
-      `https://priceline-com-provider.p.rapidapi.com/v2/flight/departures?adults=${adults}&sid=iSiX639&departure_date=${formatDate(
-        departDate
-      )}&origin_airport_code=${from}&cabin_class=${selectedVal}&destination_airport_code=${to}&children=${children}`,
-      {
-        method: "GET",
-        headers: {
-          "X-RapidAPI-Host": "priceline-com-provider.p.rapidapi.com",
-          "X-RapidAPI-Key":
-            "91bd8cf149msh10c65b76df66871p1185a2jsnd808611734d1",
-        },
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("ow");
+    if (departDate != null && to != "" && from != "") {
+      setClicked(true);
 
-        console.log(data);
+      fetch(
+        `https://priceline-com-provider.p.rapidapi.com/v2/flight/departures?adults=${adults}&sid=iSiX639&departure_date=${formatDate(
+          departDate
+        )}&origin_airport_code=${from}&cabin_class=${selectedVal}&destination_airport_code=${to}&children=${children}`,
+        {
+          method: "GET",
+          headers: {
+            "X-RapidAPI-Host": "priceline-com-provider.p.rapidapi.com",
+            "X-RapidAPI-Key":
+              "91bd8cf149msh10c65b76df66871p1185a2jsnd808611734d1",
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          setError(false);
+          console.log("in api");
+          console.log(data);
+          if (data.getAirFlightDepartures.error != null) {
+            setError(true);
+            setFlightData([]);
+            setClicked(false);
+          } else {
+            setClicked(false);
 
-        const itinerary_data =
-          data.getAirFlightDepartures.results.result.itinerary_data;
-        console.log("apiData");
-        console.log(data);
+            const itinerary_data =
+              data.getAirFlightDepartures.results.result.itinerary_data;
+            console.log("apiData");
+            console.log(data);
 
-        const apiData = Object.values(itinerary_data);
-        setFlightData(apiData);
-      });
+            const apiData = Object.values(itinerary_data);
+
+            setFlightData(apiData);
+            setError(false);
+            setSearch();
+          }
+
+          console.log(error);
+        });
+    } else {
+      setEmptyInfo(true);
+    }
   };
 
   function switchFields() {
@@ -223,6 +314,21 @@ export const Home = () => {
     setSelectedValue(event.target.value);
   };
 
+  function getTime(time1, time2) {
+    const [hours1, minutes1] = time1.split(":").map(Number);
+    const [hours2, minutes2] = time2.split(":").map(Number);
+
+    let hoursDiff = hours2 - hours1;
+    let minutesDiff = minutes2 - minutes1;
+
+    if (minutesDiff < 0) {
+      minutesDiff += 60;
+      hoursDiff--;
+    }
+
+    return `${hoursDiff}h ${minutesDiff}m`;
+  }
+
   function getDateDifference(dateDepart, dateArrive) {
     const date1 = new Date(dateDepart);
     const date2 = new Date(dateArrive);
@@ -239,11 +345,12 @@ export const Home = () => {
   }
 
   function isTimeAfter10(time) {
-    const hour = parseInt(time.split(":")[0], 10);
-    return hour > 10;
+    const [hourString, minutesString, period] = time.split(/:|(?=[ap]m)/i);
+    const hour = parseInt(hourString, 10);
+
+    return hour >= 10;
   }
 
-  const [selectedStartDate, setSelectedStartDate] = useState(null);
   const [isEndDatePickerOpen, setIsEndDatePickerOpen] = useState(false);
   const endDatePickerRef = useRef(null);
 
@@ -310,6 +417,11 @@ export const Home = () => {
     setSelectedVal(value);
   };
 
+  const handleAutocompleteFlightChange = (event, value) => {
+    setFlightValue(value);
+    console.log(flightValue);
+  };
+
   function mapValues(obj) {
     const values = Object.values(obj).slice(1);
     return values;
@@ -332,208 +444,498 @@ export const Home = () => {
     );
   }
 
+  useEffect(() => {
+    setData();
+  }, []);
   return (
     <>
-      {flightData.length == 0 && (
-        <Typography
-          sx={{
-            fontSize: 48,
-            marginTop: "4%",
-            textAlign: "center",
-            marginRight: "55%",
-          }}
-        >
-          Search flights:
-        </Typography>
-      )}
-      <Box
-        sx={{
-          width: "58%",
-          height: "45%",
-          borderRadius: 4,
-          margin: "auto",
-          marginBottom: "5%",
-          border: 3,
-          padding: 5,
-          marginTop: "2%",
-
-          overflow: "hidden",
-          position: "center",
-        }}
-      >
-        <Box sx={{ marginTop: "1%", marginBottom: "2%" }}>
+      {flightData?.length == 0 && clicked == false && (
+        <>
           <Box sx={{ display: "flex", flexDirection: "row" }}>
-            <Typography sx={{ marginRight: 2 }}>Search By</Typography>
-            <RadioGroup
-              row
-              aria-labelledby="demo-row-radio-buttons-group-label"
-              name="row-radio-buttons-group"
-              value={selectedValue}
-              onChange={handleSelected}
-              sx={{ marginTop: "-1%", marginBottom: "1%" }}
+            <Typography
+              sx={{
+                fontSize: 48,
+                marginTop: "5%",
+                textAlign: "center",
+                marginLeft: "15%",
+              }}
             >
-              <FormControlLabel
-                value="round_trip"
-                control={<Radio />}
-                label="Round Trip"
-              />
-              <FormControlLabel
-                value="one_way"
-                control={<Radio />}
-                label="One Way"
-              />
-            </RadioGroup>
-          </Box>
-          <Box sx={{ marginTop: 2 }}>
-            {selectedValue === "round_trip" ? (
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <TextField
-                    id="fromAirport"
-                    label="From"
-                    variant="outlined"
-                    sx={{ fontSize: 20 }}
-                    onInput={onInputFrom}
-                    value={from}
-                  />
-                  <Button onClick={switchFields}>
-                    <SyncAltRoundedIcon />
-                  </Button>
-                  <TextField
-                    id="toAirport"
-                    label="To"
-                    variant="outlined"
-                    sx={{ marginRight: 2, fontSize: 20 }}
-                    onInput={onInputTo}
-                    value={to}
-                  />
-                  <DatePicker
-                    label="Depart"
-                    value={departDate}
-                    onChange={handleStartDateChange}
-                    format="YYYY-MM-DD"
-                  />
-                  <DatePicker
-                    label="Return"
-                    value={arriveDate}
-                    onChange={handleEndDateChange}
-                    minDate={departDate}
-                    open={isEndDatePickerOpen}
-                    onOpen={() => setIsEndDatePickerOpen(true)}
-                    onClose={handleEndDatePickerClose}
-                    onFocus={handleEndDatePickerFocus}
-                    format="YYYY-MM-DD"
-                  />
-                </Box>
-              </LocalizationProvider>
-            ) : (
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <TextField
-                  id="fromAirport"
-                  label="From"
-                  variant="outlined"
-                  sx={{ marginRight: 1, fontSize: 20 }}
-                  onInput={onInputFrom}
-                  value={from}
-                />
-                <Button onClick={switchFields}>
-                  <SyncAltRoundedIcon />
-                </Button>
-                <TextField
-                  id="toAirport"
-                  label="To"
-                  variant="outlined"
-                  sx={{ marginRight: 6, marginLeft: 1, fontSize: 20 }}
-                  onInput={onInputTo}
-                  value={to}
-                />
-                <PickDate
-                  sx={{ marginRight: 4, marginLeft: 6, fontSize: 20 }}
-                />
-              </Box>
+              Search flights:
+            </Typography>
+            {emptyInfo == true && (
+              <Typography
+                sx={{
+                  fontSize: 25,
+                  marginTop: "6.75%",
+                  textAlign: "center",
+                  color: "red",
+                  marginLeft: "25%",
+                }}
+              >
+                Error: Enter required data
+              </Typography>
+            )}
+            {emptyInfo == false && error == true && (
+              <Typography
+                sx={{
+                  fontSize: 25,
+                  marginTop: "6.75%",
+                  textAlign: "center",
+                  color: "red",
+                  marginLeft: "20%",
+                }}
+              >
+                Error: No data for the input information
+              </Typography>
             )}
           </Box>
-          <Box sx={{ display: "flex", flexDirection: "row" }}>
-            <Autocomplete
-              options={["economy", "premium", "business", "first"]}
-              value={selectedVal}
-              onChange={handleAutocompleteChange}
-              sx={{ width: 250, marginTop: "2%", marginLeft: "5%" }}
-              renderInput={(params) => <TextField {...params} label="Class" />}
-            />
-            <FormControl
-              sx={{ minWidth: 300, marginTop: "2%", marginLeft: "5%" }}
-            >
-              <InputLabel>
-                Adults: {adults}, Children: {children}
-              </InputLabel>
-              <Select>
-                <Grid container spacing={2} alignItems="center">
-                  <Grid item>
-                    <Typography sx={{ marginLeft: "3%" }}>Adults: </Typography>
-                  </Grid>
-                  <Grid item sx={{ marginLeft: "4.75%" }}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleDecrement("adults")}
-                    >
-                      -
-                    </Button>
-                  </Grid>
-                  <Grid item>
-                    <Typography>{adults}</Typography>
-                  </Grid>
-                  <Grid item sx={{ marginLeft: ".25%" }}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleIncrement("adults")}
-                    >
-                      +
-                    </Button>
-                  </Grid>
-                </Grid>
+          <Box
+            sx={{
+              width: "58%",
+              height: "45%",
+              borderRadius: 4,
+              margin: "auto",
+              marginBottom: "5%",
+              border: 3,
+              padding: 5,
+              marginTop: "2%",
 
-                <Grid container spacing={2} alignItems="center">
-                  <Grid item>
-                    <Typography sx={{ marginLeft: "3%" }}>Children:</Typography>
-                  </Grid>
-                  <Grid item>
-                    <Button
+              overflow: "hidden",
+              position: "center",
+            }}
+          >
+            <Box sx={{ marginTop: "1%", marginBottom: "2%" }}>
+              <Box sx={{ display: "flex", flexDirection: "row" }}>
+                <Typography sx={{ marginRight: 2 }}>Search By</Typography>
+                <RadioGroup
+                  row
+                  aria-labelledby="demo-row-radio-buttons-group-label"
+                  name="row-radio-buttons-group"
+                  value={flightValue}
+                  onChange={handleAutocompleteFlightChange}
+                  sx={{ marginTop: "-1%", marginBottom: "1%" }}
+                >
+                  <FormControlLabel
+                    value="Round Trip"
+                    control={<Radio />}
+                    label="Round Trip"
+                    checked={flightValue == "Round Trip"}
+                  />
+                  <FormControlLabel
+                    value="One Way"
+                    control={<Radio />}
+                    label="One Way"
+                    checked={flightValue == "One Way"}
+                  />
+                </RadioGroup>
+              </Box>
+              <Box sx={{ marginTop: 2 }}>
+                {flightValue === "Round Trip" ? (
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <TextField
+                        id="fromAirport"
+                        label="From"
+                        variant="outlined"
+                        sx={{ fontSize: 20 }}
+                        onInput={onInputFrom}
+                        value={from}
+                      />
+                      <Button onClick={switchFields}>
+                        <SyncAltRoundedIcon />
+                      </Button>
+                      <TextField
+                        id="toAirport"
+                        label="To"
+                        variant="outlined"
+                        sx={{ marginRight: 2, fontSize: 20 }}
+                        onInput={onInputTo}
+                        value={to}
+                      />
+                      <DatePicker
+                        label="Depart"
+                        value={departDate}
+                        onChange={handleStartDateChange}
+                        format="YYYY-MM-DD"
+                      />
+                      <DatePicker
+                        label="Return"
+                        value={arriveDate}
+                        onChange={handleEndDateChange}
+                        minDate={selectedStartDate}
+                        open={isEndDatePickerOpen}
+                        onOpen={() => setIsEndDatePickerOpen(true)}
+                        onClose={handleEndDatePickerClose}
+                        onFocus={handleEndDatePickerFocus}
+                        format="YYYY-MM-DD"
+                      />
+                    </Box>
+                  </LocalizationProvider>
+                ) : (
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <TextField
+                      id="fromAirport"
+                      label="From"
                       variant="outlined"
-                      onClick={() => handleDecrement("children")}
-                    >
-                      -
+                      sx={{ marginRight: 1, fontSize: 20 }}
+                      onInput={onInputFrom}
+                      value={from}
+                    />
+                    <Button onClick={switchFields}>
+                      <SyncAltRoundedIcon />
                     </Button>
-                  </Grid>
-                  <Grid item>
-                    <Typography>{children}</Typography>
-                  </Grid>
-                  <Grid item>
-                    <Button
+                    <TextField
+                      id="toAirport"
+                      label="To"
                       variant="outlined"
-                      onClick={() => handleIncrement("children")}
-                    >
-                      +
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Select>
-            </FormControl>
-            <Button
-              sx={{ marginLeft: "8%", maxHeight: 55, marginTop: "2%" }}
-              onClick={
-                selectedValue === "round_trip"
-                  ? CallAPIRoundTrip
-                  : CallAPIOneWay
-              }
-              variant="contained"
-              size="medium"
-            >
-              SEARCH FLIGHTS
-            </Button>
+                      sx={{ marginRight: 6, marginLeft: 1, fontSize: 20 }}
+                      onInput={onInputTo}
+                      value={to}
+                    />
+                    <PickDate
+                      sx={{ marginRight: 4, marginLeft: 6, fontSize: 20 }}
+                    />
+                  </Box>
+                )}
+              </Box>
+              <Box sx={{ display: "flex", flexDirection: "row" }}>
+                <Autocomplete
+                  options={["economy", "premium", "business", "first"]}
+                  value={selectedVal}
+                  onChange={handleAutocompleteChange}
+                  sx={{ width: 250, marginTop: "2%", marginLeft: "5%" }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Class" />
+                  )}
+                />
+                <FormControl
+                  sx={{ minWidth: 300, marginTop: "2%", marginLeft: "5%" }}
+                >
+                  <InputLabel>
+                    Adults: {adults}, Children: {children}
+                  </InputLabel>
+                  <Select>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item>
+                        <Typography sx={{ marginLeft: "3%" }}>
+                          Adults:{" "}
+                        </Typography>
+                      </Grid>
+                      <Grid item sx={{ marginLeft: "4.75%" }}>
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleDecrement("adults")}
+                        >
+                          -
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <Typography>{adults}</Typography>
+                      </Grid>
+                      <Grid item sx={{ marginLeft: ".25%" }}>
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleIncrement("adults")}
+                        >
+                          +
+                        </Button>
+                      </Grid>
+                    </Grid>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item>
+                        <Typography sx={{ marginLeft: "3%" }}>
+                          Children:
+                        </Typography>
+                      </Grid>
+                      <Grid item>
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleDecrement("children")}
+                        >
+                          -
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <Typography>{children}</Typography>
+                      </Grid>
+                      <Grid item>
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleIncrement("children")}
+                        >
+                          +
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Select>
+                </FormControl>
+                <Button
+                  sx={{ marginLeft: "8%", maxHeight: 55, marginTop: "2%" }}
+                  onClick={
+                    flightValue === "Round Trip"
+                      ? CallAPIRoundTrip
+                      : CallAPIOneWay
+                  }
+                  variant="contained"
+                  size="medium"
+                >
+                  SEARCH FLIGHTS
+                </Button>
+              </Box>
+            </Box>
           </Box>
-        </Box>
-      </Box>
+        </>
+      )}
+
+      {clicked == true && (
+        <>
+          <Box
+            sx={{
+              backgroundColor: "#04628F",
+              borderRadius: 2,
+              display: "inline-flex",
+              alignItems: "center",
+              padding: 10,
+              marginTop: 7,
+              width: "69%",
+              marginLeft: "10%",
+              marginRight: "10%",
+              maxHeight: "20%",
+            }}
+          ></Box>
+          <FlightIcon
+            sx={{
+              width: 50,
+              height: 50,
+              marginLeft: 10,
+              marginTop: 3,
+            }}
+            className="flightIcon"
+          />
+          <Box
+            sx={{
+              backgroundColor: "#04628F",
+              borderRadius: 2,
+              display: "inline-flex",
+              alignItems: "center",
+              padding: 10,
+              marginTop: 15,
+              width: "69%",
+              marginLeft: "10%",
+              marginRight: "10%",
+              maxHeight: "20%",
+            }}
+          ></Box>
+        </>
+      )}
+
+      {flightData?.length != 0 && (
+        <>
+          <Box
+            sx={{
+              width: "80%",
+              borderRadius: 4,
+              margin: "auto",
+              marginBottom: "5%",
+              border: 3,
+              padding: 5,
+              marginTop: "2%",
+
+              overflow: "hidden",
+              position: "center",
+            }}
+          >
+            <Box sx={{ marginTop: "1%", marginBottom: "2%" }}>
+              <Box sx={{ display: "flex", flexDirection: "row" }}>
+                <Autocomplete
+                  options={["Round Trip", "One Way"]}
+                  value={flightValue}
+                  onChange={handleAutocompleteFlightChange}
+                  sx={{ width: 150 }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Search by"
+                      variant="standard"
+                    />
+                  )}
+                />
+                <Autocomplete
+                  options={["economy", "premium", "business", "first"]}
+                  value={selectedVal}
+                  onChange={handleAutocompleteChange}
+                  sx={{ width: 150, marginLeft: "2%" }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Class" variant="standard" />
+                  )}
+                />
+              </Box>
+              <Box
+                sx={{
+                  marginTop: 2,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                {flightValue === "One Way" ? (
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <TextField
+                      id="fromAirport"
+                      label="From"
+                      variant="outlined"
+                      sx={{ marginRight: 1, fontSize: 20 }}
+                      onInput={onInputFrom}
+                      value={from}
+                    />
+                    <Button onClick={switchFields}>
+                      <SyncAltRoundedIcon />
+                    </Button>
+                    <TextField
+                      id="toAirport"
+                      label="To"
+                      variant="outlined"
+                      sx={{ marginRight: 6, marginLeft: 1, fontSize: 20 }}
+                      onInput={onInputTo}
+                      value={to}
+                    />
+                    <PickDate
+                      sx={{
+                        fontSize: 20,
+                      }}
+                    />
+                  </Box>
+                ) : (
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <TextField
+                        id="fromAirport"
+                        label="From"
+                        variant="outlined"
+                        sx={{ fontSize: 20, width: 200 }}
+                        onInput={onInputFrom}
+                        value={from}
+                      />
+                      <Button onClick={switchFields}>
+                        <SyncAltRoundedIcon />
+                      </Button>
+                      <TextField
+                        id="toAirport"
+                        label="To"
+                        variant="outlined"
+                        sx={{
+                          marginRight: 2,
+                          fontSize: 20,
+                          width: 200,
+                        }}
+                        onInput={onInputTo}
+                        value={to}
+                      />
+                      <DatePicker
+                        label="Depart"
+                        value={departDate}
+                        onChange={handleStartDateChange}
+                        format="YYYY-MM-DD"
+                        sx={{ width: 200 }}
+                      />
+                      <DatePicker
+                        label="Return"
+                        value={arriveDate}
+                        onChange={handleEndDateChange}
+                        minDate={selectedStartDate}
+                        open={isEndDatePickerOpen}
+                        onOpen={() => setIsEndDatePickerOpen(true)}
+                        onClose={handleEndDatePickerClose}
+                        onFocus={handleEndDatePickerFocus}
+                        format="YYYY-MM-DD"
+                        sx={{ width: 200 }}
+                      />
+                    </Box>
+                  </LocalizationProvider>
+                )}
+                <FormControl
+                  sx={{
+                    minWidth: 250,
+                    marginLeft: flightValue == "One Way" ? "4%" : "1.5%",
+                  }}
+                >
+                  <InputLabel>
+                    Adults: {adults}, Children: {children}
+                  </InputLabel>
+                  <Select>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item>
+                        <Typography sx={{ marginLeft: "3%" }}>
+                          Adults:{" "}
+                        </Typography>
+                      </Grid>
+                      <Grid item sx={{ marginLeft: "5.5%" }}>
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleDecrement("adults")}
+                        >
+                          -
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <Typography>{adults}</Typography>
+                      </Grid>
+                      <Grid item sx={{ marginLeft: ".25%" }}>
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleIncrement("adults")}
+                        >
+                          +
+                        </Button>
+                      </Grid>
+                    </Grid>
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item>
+                        <Typography sx={{ marginLeft: "2.75%" }}>
+                          Children:
+                        </Typography>
+                      </Grid>
+                      <Grid item>
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleDecrement("children")}
+                        >
+                          -
+                        </Button>
+                      </Grid>
+                      <Grid item>
+                        <Typography>{children}</Typography>
+                      </Grid>
+                      <Grid item>
+                        <Button
+                          variant="outlined"
+                          onClick={() => handleIncrement("children")}
+                        >
+                          +
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Select>
+                </FormControl>
+                <Button
+                  sx={{
+                    marginLeft: flightValue == "One Way" ? "4%" : "1.5%",
+                    height: 75,
+                  }}
+                  onClick={
+                    flightValue === "Round Trip"
+                      ? CallAPIRoundTrip
+                      : CallAPIOneWay
+                  }
+                  variant="contained"
+                  size="medium"
+                >
+                  <SendRoundedIcon />
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+        </>
+      )}
 
       {flightData.map((flight, index) => (
         <>
@@ -690,7 +1092,8 @@ export const Home = () => {
                             sx={{
                               fontSize: 25,
                               maxWidth: "70px",
-                              marginLeft: "20%",
+                              marginLeft:
+                                way.info.connection_count == 0 ? "16%" : "20%",
                               maxHeight: "20px",
                             }}
                           >
@@ -706,7 +1109,7 @@ export const Home = () => {
               style={{
                 marginLeft: "88%",
                 fontSize: 25,
-                marginTop: selectedValue === "round_trip" ? "-35% " : "-22%",
+                marginTop: flightValue === "Round Trip" ? "-35% " : "-22%",
               }}
             >
               {Intl.NumberFormat("en-US", {
@@ -767,7 +1170,6 @@ export const Home = () => {
       <Popover
         id={id}
         open={open}
-        //anchorEl={anchorEl}
         onClose={handleClose}
         anchorReference="anchorPosition"
         anchorPosition={{ top: 385, left: 760 }}
@@ -910,8 +1312,8 @@ export const Home = () => {
                                   marginLeft: isTimeAfter10(
                                     way.arrival.datetime.time_12h
                                   )
-                                    ? "4%"
-                                    : "2%",
+                                    ? "8%"
+                                    : "4%",
                                 }}
                               >
                                 {getDateDifference(
@@ -1089,7 +1491,13 @@ export const Home = () => {
                               }}
                             >
                               <Typography sx={{ marginLeft: 5 }}>
-                                Connection
+                                {"Connection Time - "}
+                                {getTime(
+                                  way.flight_data[`flight_${index}`].arrival
+                                    .datetime.time_24h,
+                                  way.flight_data[`flight_${index + 1}`]
+                                    .departure.datetime.time_24h
+                                )}
                               </Typography>
                             </Box>
                             <Typography>
